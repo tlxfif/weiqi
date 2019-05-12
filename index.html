@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>简易围棋</title>
+    <script src="index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        .qizi{
+            width: 10px;
+            height: 10px;
+            display:block;
+            float:left;
+            margin: 5px 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<br>
+<span id="back">上一步</span>
+<span id="next">下一步</span>
+</body>
+<script>
+    $(function () {
+        draw();
+        $(document).on("click",".qizi",function () {
+            let x=$(this).data("x")
+            let y=$(this).data("y")
+            play(parseInt(x),parseInt(y))
+            draw()
+        })
+        $(document).on("click","#back",function () {
+            alert("这个功能也还没做")
+        })
+        $(document).on("click","#next",function () {
+            alert("这个功能还没做")
+        })
+    })
+
+    function draw(){
+        let html="";
+        for (let i=0;i<boardSize;i++){
+            for (let j=0;j<boardSize;j++){
+                html+="<span class='qizi' data-x='"+i+"' data-y='"+j+"'>"+pan[i][j]+"</span>"
+            }
+            html+="<div style='clear: both;'></div>"
+        }
+        $("#container").html(html);
+    }
+</script>
+</html>
