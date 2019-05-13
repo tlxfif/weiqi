@@ -8,7 +8,7 @@ function draw() {
 
     /* 清空，重新画线等 */
     cxt.clearRect(0,0,600,600);
-    cxt.fillStyle = "sandybrown";
+    cxt.fillStyle = "#ebc98a";
     cxt.fillRect(0,0,600,600);
     grid(cxt);
     ninePoints(cxt);
@@ -105,7 +105,8 @@ function draw() {
     }
 }
 
-
+//线条宽度
+let lineWidth=0.4;
 
 //线
 function grid(cxt) {
@@ -113,12 +114,14 @@ function grid(cxt) {
         cxt.beginPath();
         cxt.moveTo(0+30,   (i+1)*30);
         cxt.lineTo(600-30, (i+1)*30);
+        cxt.lineWidth = lineWidth;
         cxt.stroke();
     }
     for (var i = 0; i < 19; i++) {
         cxt.beginPath();
         cxt.moveTo((i+1)*30,   0+30);
         cxt.lineTo((i+1)*30, 600-30);
+        cxt.lineWidth = lineWidth;
         cxt.stroke();
     }
 
@@ -134,7 +137,7 @@ function ninePoints(cxt) {
     for (var i = 0; i < np.length; i++) {
         cxt.beginPath();
         cxt.arc(np[i][0],np[i][1],3,0,2*Math.PI,false);
-        cxt.fillStyle="black";
+        cxt.fillStyle="#654e32";
         cxt.fill();
     }
 }
@@ -205,18 +208,12 @@ function mousemoveHandler(e) {
     // clear the path
     cxt.clearRect(0,0,600,600);
 
-    // put a new Gray stone
     cxt.beginPath();
     cxt.arc(x,y,15,0,2*Math.PI,false);
-    cxt.fillStyle="gray";
-    cxt.fill();
-
-    cxt.beginPath();
-    cxt.arc(x,y,10,0,2*Math.PI,false);
     if (whoIsPlay===qiType.black)
-        cxt.fillStyle="black";
+        cxt.fillStyle="#535254";
     else
-        cxt.fillStyle="white";
+        cxt.fillStyle="#fcfefd";
     cxt.fill();
 }
 
