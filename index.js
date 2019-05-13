@@ -56,7 +56,7 @@ function play(row, col) {
             }
         }
     }else{
-        eat(row,col,qi,deadArray)
+        deadArray=eat(row,col,qi,deadArray)
     }
     pan[row][col]=whoIsPlay;
     addRecord(recordType.down,[[row,col,whoIsPlay]]);
