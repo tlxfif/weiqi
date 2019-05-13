@@ -43,12 +43,16 @@ function setQi(r,isBack=true) {
         setOneRecord(r,isBack)
         if(!isBack){
             setRelativeRecord(recordType.up)
+            whoIsPlay=getAnotherPlay(r[1][0][2])
+        }else{
+            whoIsPlay=r[1][0][2]
         }
     }else if(r[0]===recordType.up){
         setOneRecord(r,false)
         if(isBack){
             setRelativeRecord(recordType.down)
         }
+        whoIsPlay=getAnotherPlay(r[1][0][2])
     }
     function setRelativeRecord(type) {
         let i=isBack?-1:1;
@@ -72,7 +76,7 @@ function setOneRecord(record,isEmpty=true) {
             pan[record[1][i][0]][record[1][i][1]]=record[1][i][2];
         }
     }
-    whoIsPlay=record[1].length>0?record[1][0][2]:whoIsPlay;
+    //whoIsPlay=record[1].length>0?record[1][0][2]:whoIsPlay;
 }
 
 //arr=[x,y,qiType.black]
@@ -288,6 +292,15 @@ function nextPlay() {
     }else{
         whoIsPlay=qiType.black;
     }
+}
+//另一手角色
+function getAnotherPlay(type) {
+    if(type===qiType.black){
+        type=qiType.white;
+    }else{
+        type=qiType.black;
+    }
+    return type;
 }
 //棋盘大小生成函数 必须为单数
 function BoardGenerator(size=19) {

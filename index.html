@@ -30,6 +30,7 @@
 <br>
 <span id="back">上一步</span>
 <span id="next">下一步</span>
+<span id="new">显示手数</span>
 </body>
 <script>
     $(function () {
@@ -42,6 +43,17 @@
             nextStep();
             draw();
         })
+        $(document).on("click","#new",function () {
+            if(move_show_flag){
+                $(this).text("显示手数")
+            }else{
+                $(this).text("隐藏手数")
+            }
+            move_show_flag=!move_show_flag;
+            draw();
+        })
+
+
     })
 </script>
 </html>

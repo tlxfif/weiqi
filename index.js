@@ -44,51 +44,64 @@ function draw() {
             }
         }
     }
+
+
     // 显示手数
+    let qiCountArr=[];
     if (move_show_flag) {
-        for (var m = 0; m < move_record.length-1; m++) { // 最新的一手由后面的红色标记
-            // 先判断一下棋子还在不在棋盘上
-            if (pan[move_record[m][0]][move_record[m][1]] === 0)
-                continue;
-
-            // 而且只应该画最新的数字（打劫后，可能导致一个坐标上重复许多步数）
-            var repeat_move_flag = false;
-            for (var j = m+1; j < move_record.length; j++) {
-                if (move_record[m][0] === move_record[j][0] &&
-                    move_record[m][1] === move_record[j][1]) {
-                    repeat_move_flag = true;
-                    break;
-                }
+        let count=0;
+        for (let m = jumpPointer; m >=0; m--) {
+            if(record[m][0]===recordType.down){
+                count++;
             }
-            if (repeat_move_flag)
-                continue;
+        }
+        for (let m =jumpPointer; m >=0; m--) { // 最新的一手由后面的红色标记
+            let r=record[m];
+            let x=record[m][1][0][0];
+            let y=record[m][1][0][1];
 
-            // 这下可以放心绘制手数数字啦
-            if (move_record[m][2] % 2 === 1) { //black
-                cxt.fillStyle="white";
-            } else {
+            //提子不记
+            if(r[0]===recordType.up){
+                continue;
+            }
+            // 判断是否被提子
+            if (pan[x][y] === 0){
+                count--;
+                continue;
+            }
+            let flag=arrayAdd(x,y,r[1][0][2],qiCountArr);
+            if(!flag){
+                count--;
+                continue;
+            }
+
+            if (r[1][0][2]===qiType.white) { //black
                 cxt.fillStyle="black";
-            }
-            cxt.font="bold 18px sans-serif";
-            if (move_record[m][2] > 99) {
-                cxt.font="bold 16px sans-serif";
+            } else {
+                cxt.fillStyle="white";
             }
             cxt.font="bold 16px sans-serif";
             cxt.textAlign="center";
-            var move_msg = move_record[m][2].toString();
-            //cxt.fillText(move_msg, (i+1)*30, (j+1)*30+6);
-            cxt.fillText(move_msg, (move_record[m][0]+1)*30, (move_record[m][1]+1)*30+6);
+            cxt.fillText(count+"", (x+1)*30, (y+1)*30+6);
+            count--;
         }
     }
     // 特别显示最新的一手
-    if (record.length > 0) {
+    if (jumpPointer >= 0) {
         cxt.fillStyle = "red";
-        var newest_move = record.length-1;
-        cxt.fillRect(
-            (record[newest_move][1][0])*30-5,
-            (record[newest_move][1][1])*30-5,
-            10, 10
-        );
+        if(record[jumpPointer][0]===recordType.up){
+            cxt.fillRect(
+                (record[jumpPointer-1][1][0][0]+1)*30-5,
+                (record[jumpPointer-1][1][0][1]+1)*30-5,
+                10, 10
+            );
+        }else {
+            cxt.fillRect(
+                (record[jumpPointer][1][0][0] + 1) * 30 - 5,
+                (record[jumpPointer][1][0][1] + 1) * 30 - 5,
+                10, 10
+            );
+        }
     }
 }
 
