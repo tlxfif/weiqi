@@ -150,7 +150,7 @@ function haveAir(row,col,array,onlyEmpty=false){
 function getQi(row, col,round,point) {
     allHaveAir(row, col,undefined,round);
     for(let i=0;i<round.length;i++){
-        qi+=haveAir(round[i][0],round[i][1],point,true);
+        haveAir(round[i][0],round[i][1],point,true);
     }
     return point.length;
 }
