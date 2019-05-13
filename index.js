@@ -72,6 +72,7 @@ function setOneRecord(record,isEmpty=true) {
             pan[record[1][i][0]][record[1][i][1]]=record[1][i][2];
         }
     }
+    whoIsPlay=record[1].length>0?record[1][0][2]:whoIsPlay;
 }
 
 //arr=[x,y,qiType.black]
