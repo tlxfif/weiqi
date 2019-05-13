@@ -1,309 +1,235 @@
-//棋子类型 空、黑、白
-let qiType={
-    empty:0,
-    black:1,
-    white:2
-};
-let boardSize=19;
-//棋盘大小
-let pan=BoardGenerator(boardSize);
-//下棋记录
-let record=[];
-let recordType={
-    down:0, //下子
-    up:1    //提子
-};
-//跳转指针 上一步 下一步
-let jumpPointer=-1;
 
-function backStep() {
-    if(record.length===0){return false;}
-    if(jumpPointer<0){
-        exception("已经是第一步了")
-    }
-    setQi(record[jumpPointer],true)
-    jumpPointer-=1;
-}
+let move_show_flag=false;
 
-function nextStep() {
-    if(record.length===0){return false;}
-    if(jumpPointer+1>record.length-1){
-        exception("已经是第最后一步了")
-    }
-    jumpPointer+=1;
-    setQi(record[jumpPointer],false)
-}
+function draw() {
+    var c = document.getElementById("weiqi");
+    var cxt = c.getContext("2d");
+    cxt.strokeStyle="black";
 
-//设置棋盘布局 [recordType,[x,y,qiType.black]]
-function setQi(r,isBack=true) {
-    if(!r||r.length!==2){
-        return false;
-    }
-    if(r[0]===recordType.down){
-        setOneRecord(r,isBack)
-        if(!isBack){
-            setRelativeRecord(recordType.up)
-        }
-    }else if(r[0]===recordType.up){
-        setOneRecord(r,false)
-        if(isBack){
-            setRelativeRecord(recordType.down)
-        }
-    }
-    function setRelativeRecord(type) {
-        let i=isBack?-1:1;
-        if(jumpPointer+i<0&&jumpPointer>=record.length-1){
-            return false;
-        }
-        let r=record[jumpPointer+i];
-        if(r&&r[0]===type){
-            jumpPointer+=i;
-            setOneRecord(r,true)
-        }
-    }
+    /* 清空，重新画线等 */
+    cxt.clearRect(0,0,600,600);
+    cxt.fillStyle = "sandybrown";
+    cxt.fillRect(0,0,600,600);
+    grid(cxt);
+    ninePoints(cxt);
 
-}
-//设置一条记录 arr=[x,y,qiType.black]
-function setOneRecord(record,isEmpty=true) {
-    for(let i=0;i<record[1].length;i++) {
-        if(isEmpty){
-            pan[record[1][i][0]][record[1][i][1]] = qiType.empty;
-        }else{
-            pan[record[1][i][0]][record[1][i][1]]=record[1][i][2];
-        }
-    }
-    whoIsPlay=record[1].length>0?record[1][0][2]:whoIsPlay;
-}
+    for (var i = 0; i < 19; i++) {
+        for (var j = 0; j < 19; j++) {
+            if (pan[i][j] === 1) { //black
+                var rg = cxt.createRadialGradient((i+1)*30-3, (j+1)*30-3, 1, (i+1)*30-4, (j+1)*30-4, 11);
+                rg.addColorStop(1, /*"black"*/"#202020");
+                rg.addColorStop(0, "gray");
+                cxt.beginPath();
+                cxt.arc((i+1)*30, (j+1)*30,15,0,2*Math.PI,false);
+                //cxt.fillStyle="black";
+                cxt.fillStyle=rg;
+                cxt.fill();
 
-//arr=[x,y,qiType.black]
-function addRecord(recordType,re){
-    if(jumpPointer<=record.length-1){
-        if(jumpPointer===-1){
-            record=[];//数组清空
-        }else{
-            record=record.slice(0,jumpPointer+1)
-        }
-    }
-    record.push([recordType,re]);
-    jumpPointer=record.length-1;
-
-}
-//下一手 颜色 黑先
-let whoIsPlay=qiType.black;
-function play(row, col) {
-    onTheBoard(row,col,function () {
-        exception("超出棋盘限制")
-    });
-    // 处理已有棋子在此
-    if (pan[row][col] !== 0) {
-        exception("此数有棋子")
-    }
-    let qi=[];
-    let deadArray=[];
-    //判断是否有气
-    if(haveAir(row,col,qi)===0){
-        console.log("无气")
-        let is_eat;
-        //是否能吃 对手的棋
-        deadArray=eat(row,col,qi)
-        if(deadArray.length>0){
-            is_eat=true;
-        }
-        jie(row,col,deadArray)
-        //无气并且没有吃对方
-        if(!is_eat){
-            let count=0;
-            let sumQi=0;
-            for(let g=0;g<qi.length;g++){
-                //气点与势力范围
-                let round=[],point=[];
-                if(pan[qi[g][0]][qi[g][1]]!==whoIsPlay){
-                    continue;
-                }
-                count++;
-                sumQi+=getQi(qi[g][0],qi[g][1],round,point)
             }
-            if(count>=sumQi){
-                exception("禁入点,没有气不能下")
+            else if (pan[i][j] === 2) { //white
+                var rg = cxt.createRadialGradient((i+1)*30-3, (j+1)*30-3, 1, (i+1)*30-4, (j+1)*30-4, 11);
+                rg.addColorStop(1, /*"lightgray"*/"#e0e0e0");
+                rg.addColorStop(0, "white");
+                cxt.beginPath();
+                cxt.arc((i+1)*30, (j+1)*30,15,0,2*Math.PI,false);
+                //cxt.fillStyle="white";
+                cxt.fillStyle=rg;
+                cxt.fill();
+            }
+            else if (pan[i][j] === 7) { // fill color
+                cxt.beginPath();
+                cxt.arc((i+1)*30, (j+1)*30,15,0,2*Math.PI,false);
+                cxt.fillStyle="red";
+                cxt.fill();
             }
         }
-    }else{
-        console.log("有气")
-        deadArray=eat(row,col,qi,deadArray)
     }
-    pan[row][col]=whoIsPlay;
-    addRecord(recordType.down,[[row,col,whoIsPlay]]);
-    if(deadArray.length>0){
-        addRecord(recordType.up,deadArray);
-        for(let k=0;k<deadArray.length;k++){
-            pan[deadArray[k][0]][deadArray[k][1]]=qiType.empty;
-        }
-    }
-    nextPlay();
-}
-//吃子函数  qi 势力范围
-function eat(row,col,qi) {
-    //死亡区域
-    let deadRound=[];
-    for(let i=0;i<qi.length;i++){
-        //先处理对手的
-        if(qi[i][2]!==whoIsPlay){
-            //气点与势力范围
-            let round=[],point=[];
-            let qiCount=getQi(qi[i][0],qi[i][1],round,point)
-            //只有一气，并且 气点在当前下的坐标时 提子
-            if(qiCount===1&&point.length===1){
-                if(point[0][0]===row&&point[0][1]===col){
-                    if(round.length>0){
-                        deadRound=deadRound.concat(round)
-                    }
+    // 显示手数
+    if (move_show_flag) {
+        for (var m = 0; m < move_record.length-1; m++) { // 最新的一手由后面的红色标记
+            // 先判断一下棋子还在不在棋盘上
+            if (pan[move_record[m][0]][move_record[m][1]] === 0)
+                continue;
+
+            // 而且只应该画最新的数字（打劫后，可能导致一个坐标上重复许多步数）
+            var repeat_move_flag = false;
+            for (var j = m+1; j < move_record.length; j++) {
+                if (move_record[m][0] === move_record[j][0] &&
+                    move_record[m][1] === move_record[j][1]) {
+                    repeat_move_flag = true;
+                    break;
                 }
             }
+            if (repeat_move_flag)
+                continue;
+
+            // 这下可以放心绘制手数数字啦
+            if (move_record[m][2] % 2 === 1) { //black
+                cxt.fillStyle="white";
+            } else {
+                cxt.fillStyle="black";
+            }
+            cxt.font="bold 18px sans-serif";
+            if (move_record[m][2] > 99) {
+                cxt.font="bold 16px sans-serif";
+            }
+            cxt.font="bold 16px sans-serif";
+            cxt.textAlign="center";
+            var move_msg = move_record[m][2].toString();
+            //cxt.fillText(move_msg, (i+1)*30, (j+1)*30+6);
+            cxt.fillText(move_msg, (move_record[m][0]+1)*30, (move_record[m][1]+1)*30+6);
         }
     }
-    return deadRound;
+    // 特别显示最新的一手
+    if (record.length > 0) {
+        cxt.fillStyle = "red";
+        var newest_move = record.length-1;
+        cxt.fillRect(
+            (record[newest_move][1][0])*30-5,
+            (record[newest_move][1][1])*30-5,
+            10, 10
+        );
+    }
 }
-//劫
-function jie(row,col,deadArray) {
-    //目前只判断单劫
-    if(deadArray.length!==1){
-        return false;
+
+
+
+//线
+function grid(cxt) {
+    for (var i = 0; i < 19; i++) {
+        cxt.beginPath();
+        cxt.moveTo(0+30,   (i+1)*30);
+        cxt.lineTo(600-30, (i+1)*30);
+        cxt.stroke();
     }
-    //至少有两步记录 判断劫 up/down
-    if(record.length>=2){
-        //上一步
-        let backStep = record[record.length-1];
-        //上上一步
-        let backBackStep = record[record.length-2];
-        //如果上一步是吃子
-        if(backStep[0]===recordType.up){
-            //如果上上一步是下子
-            if(backBackStep[0]===recordType.down){
-                //死亡的地方正是被下的地方
-                if(backStep[1][0][0]===row&&backStep[1][0][1]===col&&backStep[1][0][2]===whoIsPlay){
-                    exception("劫")
-                }
-            }
-        }
+    for (var i = 0; i < 19; i++) {
+        cxt.beginPath();
+        cxt.moveTo((i+1)*30,   0+30);
+        cxt.lineTo((i+1)*30, 600-30);
+        cxt.stroke();
     }
-    return false;
-}
-//判断单个子是否有气  返回相邻元素  只得空气点
-function haveAir(row,col,array,onlyEmpty=false){
-    function isAir(r, c) {
-        let flag;
-        //四个方向判断
-        flag=onTheBoard(r,c,function () {
-            return false;
-        });
-        if(flag){
-            if(onlyEmpty){
-                if(pan[r][c]===qiType.empty){
-                    arrayAdd(r,c,pan[r][c],array)
-                }
-            }else{
-                arrayAdd(r,c,pan[r][c],array)
-            }
-            if(pan[r][c]===qiType.empty){
-                return 1;
-            }
-        }
-        return 0;
-    }
-    let flag1=isAir(row-1, col);
-    let flag2=isAir(row+1, col);
-    let flag3=isAir(row, col-1);
-    let flag4=isAir(row, col+1);
-    return flag1+flag2+flag3+flag4;
 
 }
-//得到气的多少  x,y,势力范围,气点
-function getQi(row, col,round,point) {
-    allHaveAir(row, col,undefined,round);
-    for(let i=0;i<round.length;i++){
-        haveAir(round[i][0],round[i][1],point,true);
+//天元与边角星
+function ninePoints(cxt) {
+    var np = new Array(
+        [120,120],[300,120],[480,120],
+        [120,300],[300,300],[480,300],
+        [120,480],[300,480],[480,480]
+    );
+
+    for (var i = 0; i < np.length; i++) {
+        cxt.beginPath();
+        cxt.arc(np[i][0],np[i][1],3,0,2*Math.PI,false);
+        cxt.fillStyle="black";
+        cxt.fill();
     }
-    return point.length;
 }
-//得到势力范围
-function allHaveAir(row, col,type=undefined,array){
-    let flag;
-    //四个方向判断
-    flag=onTheBoard(row,col,function () {
-        return false;
-    });
-    if(flag){
-        if(pan[row][col]===qiType.empty){
-            return array;
-        }else{
-            if(type===undefined){
-                type=pan[row][col]
-                let ret=arrayAdd(row,col,type,array)
-                if(ret===false){
-                    return false;
-                }
-            }else{
-                if(pan[row][col]===type){
-                    let ret=arrayAdd(row,col,type,array)
-                    if(ret===false){
-                        return false;
-                    }
-                }else{
-                    return false;
-                }
-            }
+
+function mousedownHandler(e) {
+    var x, y;
+    if (e.offsetX || e.offsetX == 0) {
+        x = e.offsetX; //- imageView.offsetLeft;
+        y = e.offsetY; //- imageView.offsetTop;
+    }
+    if (x < 30-10 || x > 600-30+10)
+        return;
+    if (y < 30-10 || y > 600-30+10)
+        return;
+
+    var xok = false;
+    var yok = false;
+    var x_;
+    var y_;
+    for (var i = 1; i <= 19; i++) {
+        if (x > i*30-15 && x < i*30+15) {
+            x = i*30;
+            xok = true;
+            x_ = i - 1;
         }
-        allHaveAir(row-1, col,type,array);
-        allHaveAir(row+1, col,type,array);
-        allHaveAir(row, col-1,type,array);
-        allHaveAir(row, col+1,type,array);
-    }
-}
-//数组去重增加
-function arrayAdd(row,col,type,array) {
-    if(typeof array==="undefined"){
-        return false;
-    }
-    for(let i=0;i<array.length;i++){
-        if(array[i][0]===row&&array[i][1]===col){
-            return false;
+        if (y > i*30-15 && y < i*30+15) {
+            y = i*30;
+            yok = true;
+            y_ = i - 1;
         }
     }
-    array.push([row,col,type])
-    return true;
+    if (!xok || !yok)
+        return;
+
+    play(x_, y_);
+    draw();
 }
-//棋子是否在棋盘内
-function onTheBoard(row,col,callback) {
-    if(row<0||row>boardSize-1||col<0||col>boardSize-1){
-        if(typeof callback==="function"){
-            return callback();
+
+function mousemoveHandler(e) {
+    var x, y;
+    if (e.offsetX || e.offsetX == 0) {
+        x = e.offsetX ;//- imageView.offsetLeft;
+        y = e.offsetY ;//- imageView.offsetTop;
+    }
+    if (x < 30-10 || x > 600-30+10)
+        return;
+    if (y < 30-10 || y > 600-30+10)
+        return;
+
+    var xok = false;
+    var yok = false;
+    for (var i = 1; i <= 19; i++) {
+        if (x > i*30-15 && x < i*30+15) {
+            x = i*30;
+            xok = true;
+        }
+        if (y > i*30-15 && y < i*30+15) {
+            y = i*30;
+            yok = true;
         }
     }
-    return true;
+    if (!xok || !yok)
+        return;
+
+    var c = document.getElementById("path");
+    var cxt = c.getContext("2d");
+
+    // clear the path
+    cxt.clearRect(0,0,600,600);
+
+    // put a new Gray stone
+    cxt.beginPath();
+    cxt.arc(x,y,15,0,2*Math.PI,false);
+    cxt.fillStyle="gray";
+    cxt.fill();
+
+    cxt.beginPath();
+    cxt.arc(x,y,10,0,2*Math.PI,false);
+    if (whoIsPlay===qiType.black)
+        cxt.fillStyle="black";
+    else
+        cxt.fillStyle="white";
+    cxt.fill();
 }
-//下一手角色
-function nextPlay() {
-    if(whoIsPlay===qiType.black){
-        whoIsPlay=qiType.white;
-    }else{
-        whoIsPlay=qiType.black;
-    }
+
+function mouseoutHandler(e) {
+    var c = document.getElementById("path");
+    var cxt = c.getContext("2d");
+    cxt.clearRect(0,0,600,600);
 }
-//棋盘大小生成函数 必须为单数
-function BoardGenerator(size=19) {
-    if(size<7||size%2!==1){
-        exception("棋盘必须为大于1的单数")
-    }
-    let yArr=[];
-    for(let i=0;i<size;i++){
-        let xArr=[];
-        for(let j=0;j<size;j++){
-            xArr.push(0);
+
+function initBoard() {
+    var c_path = document.getElementById("path");
+    c_path.addEventListener('mousedown', mousedownHandler, false);
+    c_path.addEventListener('mousemove', mousemoveHandler, false);
+    c_path.addEventListener('mouseout', mouseoutHandler, false);
+    draw();
+}
+function addLoadEvent(func) {
+    var oldonload = window.onload;
+    if (typeof window.onload != 'function') {
+        window.onload = func;
+    } else {
+        window.onload = function() {
+            oldonload();
+            func();
         }
-        yArr.push(xArr);
     }
-    return yArr;
 }
-function exception(msg) {
-    throw new SyntaxError(msg)
-}
+//window.addEventListener("load", initBoard, true);
+addLoadEvent(initBoard);

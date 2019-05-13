@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>简易围棋</title>
+    <script src="core.js"></script>
     <script src="index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <style>
-        .qizi{
-            width: 10px;
-            height: 10px;
-            display:block;
-            float:left;
-            margin: 5px 5px;
+        body {
+            margin: 0 auto;
+            width:600px;
         }
+        #weiqi {
+            border: 0px solid blue;
+            position: absolute;
+            top:50px;
+        }
+        #path {
+            position: absolute;
+            top:50px;
+            z-index: 200;
+        }
+
     </style>
 </head>
 <body>
-<div id="container"></div>
+<canvas id="weiqi" width="600" height="600"></canvas>
+<canvas id="path" width="600" height="600"></canvas>
 <br>
 <span id="back">上一步</span>
 <span id="next">下一步</span>
@@ -24,12 +34,6 @@
 <script>
     $(function () {
         draw();
-        $(document).on("click",".qizi",function () {
-            let x=$(this).data("x")
-            let y=$(this).data("y")
-            play(parseInt(x),parseInt(y))
-            draw()
-        })
         $(document).on("click","#back",function () {
             backStep();
             draw();
@@ -39,16 +43,5 @@
             draw();
         })
     })
-
-    function draw(){
-        let html="";
-        for (let i=0;i<boardSize;i++){
-            for (let j=0;j<boardSize;j++){
-                html+="<span class='qizi' data-x='"+i+"' data-y='"+j+"'>"+pan[i][j]+"</span>"
-            }
-            html+="<div style='clear: both;'></div>"
-        }
-        $("#container").html(html);
-    }
 </script>
 </html>
