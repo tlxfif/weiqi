@@ -10,12 +10,82 @@ let pan=BoardGenerator(boardSize);
 //下棋记录
 let record=[];
 let recordType={
-    down:1, //下子
+    down:0, //下子
     up:1    //提子
 };
+//跳转指针 上一步 下一步
+let jumpPointer=-1;
+
+function backStep() {
+    if(record.length===0){return false;}
+    if(jumpPointer<0){
+        exception("已经是第一步了")
+    }
+    setQi(record[jumpPointer],true)
+    jumpPointer-=1;
+}
+
+function nextStep() {
+    if(record.length===0){return false;}
+    if(jumpPointer+1>record.length-1){
+        exception("已经是第最后一步了")
+    }
+    jumpPointer+=1;
+    setQi(record[jumpPointer],false)
+}
+
+//设置棋盘布局 [recordType,[x,y,qiType.black]]
+function setQi(r,isBack=true) {
+    if(!r||r.length!==2){
+        return false;
+    }
+    if(r[0]===recordType.down){
+        setOneRecord(r,isBack)
+        if(!isBack){
+            setRelativeRecord(recordType.up)
+        }
+    }else if(r[0]===recordType.up){
+        setOneRecord(r,false)
+        if(isBack){
+            setRelativeRecord(recordType.down)
+        }
+    }
+    function setRelativeRecord(type) {
+        let i=isBack?-1:1;
+        if(jumpPointer+i<0&&jumpPointer>=record.length-1){
+            return false;
+        }
+        let r=record[jumpPointer+i];
+        if(r&&r[0]===type){
+            jumpPointer+=i;
+            setOneRecord(r,true)
+        }
+    }
+
+}
+//设置一条记录 arr=[x,y,qiType.black]
+function setOneRecord(record,isEmpty=true) {
+    for(let i=0;i<record[1].length;i++) {
+        if(isEmpty){
+            pan[record[1][i][0]][record[1][i][1]] = qiType.empty;
+        }else{
+            pan[record[1][i][0]][record[1][i][1]]=record[1][i][2];
+        }
+    }
+}
+
 //arr=[x,y,qiType.black]
 function addRecord(recordType,re){
-    record.push([recordType,re])
+    if(jumpPointer<=record.length-1){
+        if(jumpPointer===-1){
+            record=[];//数组清空
+        }else{
+            record=record.slice(0,jumpPointer+1)
+        }
+    }
+    record.push([recordType,re]);
+    jumpPointer=record.length-1;
+
 }
 //下一手 颜色 黑先
 let whoIsPlay=qiType.black;
