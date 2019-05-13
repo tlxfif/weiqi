@@ -31,6 +31,7 @@ function play(row, col) {
     let deadArray=[];
     //判断是否有气
     if(haveAir(row,col,qi)===0){
+        console.log("无气")
         let is_eat;
         //是否能吃 对手的棋
         deadArray=eat(row,col,qi)
@@ -56,6 +57,7 @@ function play(row, col) {
             }
         }
     }else{
+        console.log("有气")
         deadArray=eat(row,col,qi,deadArray)
     }
     pan[row][col]=whoIsPlay;
@@ -147,11 +149,10 @@ function haveAir(row,col,array,onlyEmpty=false){
 //得到气的多少  x,y,势力范围,气点
 function getQi(row, col,round,point) {
     allHaveAir(row, col,undefined,round);
-    let qi=0;
     for(let i=0;i<round.length;i++){
         qi+=haveAir(round[i][0],round[i][1],point,true);
     }
-    return qi;
+    return point.length;
 }
 //得到势力范围
 function allHaveAir(row, col,type=undefined,array){
