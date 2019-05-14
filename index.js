@@ -11,6 +11,9 @@ let goMargin=goWidth/(goSize+1);
 //棋子半径
 let piecesRadius=goMargin/2;
 
+//自动下一步
+let autoNext=false;
+
 function draw() {
     var c = document.getElementById("weiqi");
     var cxt = c.getContext("2d");

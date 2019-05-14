@@ -33,7 +33,19 @@ function nextStep() {
     jumpPointer+=1;
     setQi(record[jumpPointer],false)
 }
-
+function startStep() {
+    if(record.length===0){return false;}
+    jumpPointer=-1;
+    pan=BoardGenerator(boardSize)
+}
+function endStep() {
+    if(record.length===0){return false;}
+    startStep()
+    jumpPointer=record.length-1;
+    for(let i=0;i<jumpPointer+1;i++){
+        setQi(record[i],false)
+    }
+}
 //设置棋盘布局 [recordType,[x,y,qiType.black]]
 function setQi(r,isBack=true) {
     if(!r||r.length!==2){

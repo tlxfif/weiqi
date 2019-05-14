@@ -22,6 +22,12 @@
             top:50px;
             z-index: 200;
         }
+        .btn{
+            background-color: #e65a39;
+            color: white;
+            padding: 0 4px;
+            margin: 0 2px;
+        }
 
     </style>
 </head>
@@ -29,9 +35,12 @@
 <canvas id="weiqi" width="600" height="600"></canvas>
 <canvas id="path" width="600" height="600"></canvas>
 <br>
-<span id="back">上一步</span>
-<span id="next">下一步</span>
-<span id="new">显示手数</span>
+<span class="btn" id="start">&lt;&lt;</span>
+<span class="btn" id="back"> &lt; </span>
+<span class="btn" id="next"> &gt; </span>
+<span class="btn" id="end">&gt;&gt;</span>
+<span class="btn" id="new">显示手数</span>
+<span class="btn" id="auto">自动</span>
 </body>
 <script>
     $(function () {
@@ -39,11 +48,19 @@
         $(document).on("click","#back",function () {
             backStep();
             draw();
-        })
+        });
         $(document).on("click","#next",function () {
             nextStep();
             draw();
-        })
+        });
+        $(document).on("click","#start",function () {
+            startStep();
+            draw();
+        });
+        $(document).on("click","#end",function () {
+            endStep();
+            draw();
+        });
         $(document).on("click","#new",function () {
             if(move_show_flag){
                 $(this).text("显示手数")
@@ -52,6 +69,35 @@
             }
             move_show_flag=!move_show_flag;
             draw();
+        });
+
+        let autoFlag;
+        $(document).on("click","#auto",function () {
+            autoNext=!autoNext;
+            let that=$(this);
+            if(autoNext){
+                autoFlag=setInterval(function () {
+                    if(jumpPointer+1>record.length-1){
+                        autoNext=false;
+                        that.text("自动")
+                        clearInterval(autoFlag);
+                        return;
+                    }
+                    nextStep();
+                    draw();
+                    if(jumpPointer+1>record.length-1){
+                        autoNext=false;
+                        that.text("自动")
+                        clearInterval(autoFlag);
+                        return;
+                    }
+                },1000)
+                that.text("停止")
+            }else{
+                clearInterval(autoFlag);
+                that.text("自动")
+            }
+
         })
 
 
