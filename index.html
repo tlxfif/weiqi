@@ -5,6 +5,7 @@
     <title>简易围棋</title>
     <script src="core.js"></script>
     <script src="index.js"></script>
+    <script src="sgf.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <style>
         body {
@@ -55,5 +56,12 @@
 
 
     })
+    function importSGF(sgf) {
+        let record=parser(sgf);
+        for (let i=0;i<record.length;i++){
+            play(record[i][0],record[i][1],record[i][2])
+        }
+        draw();
+    }
 </script>
 </html>

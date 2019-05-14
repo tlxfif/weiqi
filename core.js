@@ -94,7 +94,10 @@ function addRecord(recordType,re){
 }
 //下一手 颜色 黑先
 let whoIsPlay=qiType.black;
-function play(row, col) {
+function play(row, col,player=undefined) {
+    if(player&&(player===qiType.black||player===qiType.white)){
+        whoIsPlay=player;
+    }
     onTheBoard(row,col,function () {
         exception("超出棋盘限制")
     });
