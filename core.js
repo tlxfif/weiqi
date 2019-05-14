@@ -308,7 +308,7 @@ function getAnotherPlay(type) {
 //棋盘大小生成函数 必须为单数
 function BoardGenerator(size=19) {
     if(size<7||size%2!==1){
-        exception("棋盘必须为大于1的单数")
+        exception("棋盘必须为大于7的单数")
     }
     let yArr=[];
     for(let i=0;i<size;i++){
