@@ -19,6 +19,8 @@
 2.AI(这就有点扯蛋了)  
 3.提子显示  
 
+### BUG
+1.鼠标在空格最中间与在棋盘外一点点不能下棋
 
 ### 参照
 https://github.com/nixzhu/nixBoard  (部分逻辑)  
