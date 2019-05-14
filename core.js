@@ -9,20 +9,41 @@ let boardSize=19;
 let pan=BoardGenerator(boardSize);
 //下棋记录
 let record=[];
-let recordType={
-    down:0, //下子
-    up:1    //提子
-};
 //跳转指针 上一步 下一步
 let jumpPointer=-1;
+
+//黑白提子
+let blackUpCount=0;
+let whiteUpCount=0;
+
+//计算 提子数
+function calcUpQi(){
+    if(record.length===0||jumpPointer<0||jumpPointer>record.length-1){return false;}
+    blackUpCount=0;
+    whiteUpCount=0;
+    for (let i=0;i<=jumpPointer;i++){
+        let r=record[i];
+        if(r[2]===qiType.white){
+            whiteUpCount+=r[3].length;
+        }else{
+            blackUpCount+=r[3].length;
+        }
+    }
+}
 
 function backStep() {
     if(record.length===0){return false;}
     if(jumpPointer<0){
         exception("已经是第一步了")
     }
+    if(record[jumpPointer][2]===qiType.white){
+        whiteUpCount-=record[jumpPointer][3].length;
+    }else{
+        blackUpCount-=record[jumpPointer][3].length;
+    }
     setQi(record[jumpPointer],true)
     jumpPointer-=1;
+
 }
 
 function nextStep() {
@@ -31,12 +52,19 @@ function nextStep() {
         exception("已经是第最后一步了")
     }
     jumpPointer+=1;
+    if(record[jumpPointer][2]===qiType.white){
+        whiteUpCount+=record[jumpPointer][3].length;
+    }else{
+        blackUpCount+=record[jumpPointer][3].length;
+    }
     setQi(record[jumpPointer],false)
 }
 function startStep() {
     if(record.length===0){return false;}
     jumpPointer=-1;
     pan=BoardGenerator(boardSize)
+    blackUpCount=0;
+    whiteUpCount=0;
 }
 function endStep() {
     if(record.length===0){return false;}
@@ -45,54 +73,37 @@ function endStep() {
     for(let i=0;i<jumpPointer+1;i++){
         setQi(record[i],false)
     }
+    calcUpQi();
 }
-//设置棋盘布局 [recordType,[x,y,qiType.black]]
+//设置棋盘布局 [x,y,qiType.black,upArr]
 function setQi(r,isBack=true) {
-    if(!r||r.length!==2){
+    if(!r||r.length!==4){
         return false;
     }
-    if(r[0]===recordType.down){
-        setOneRecord(r,isBack)
-        if(!isBack){
-            setRelativeRecord(recordType.up)
-            whoIsPlay=getAnotherPlay(r[1][0][2])
-        }else{
-            whoIsPlay=r[1][0][2]
-        }
-    }else if(r[0]===recordType.up){
-        setOneRecord(r,false)
-        if(isBack){
-            setRelativeRecord(recordType.down)
-        }
-        whoIsPlay=getAnotherPlay(r[1][0][2])
+    setOneRecord(r,isBack);
+    if(isBack){
+        prevPlay();
+    }else{
+        whoIsPlay=getAnotherPlay(r[2])
     }
-    function setRelativeRecord(type) {
-        let i=isBack?-1:1;
-        if(jumpPointer+i<0&&jumpPointer>=record.length-1){
-            return false;
-        }
-        let r=record[jumpPointer+i];
-        if(r&&r[0]===type){
-            jumpPointer+=i;
-            setOneRecord(r,true)
-        }
-    }
-
 }
-//设置一条记录 arr=[x,y,qiType.black]
-function setOneRecord(record,isEmpty=true) {
-    for(let i=0;i<record[1].length;i++) {
-        if(isEmpty){
-            pan[record[1][i][0]][record[1][i][1]] = qiType.empty;
-        }else{
-            pan[record[1][i][0]][record[1][i][1]]=record[1][i][2];
+//设置一条记录 [[x,y,qiType.black,upArr]]
+function setOneRecord(r,isBack=true) {
+    if(isBack){
+        pan[r[0]][r[1]] = qiType.empty;
+        if(r[3].length>0){
+            setAreaQi(r[3],getAnotherPlay(r[2]));
+        }
+    }else{
+        pan[r[0]][r[1]]=r[2];
+        if(r[3].length>0){
+            setAreaQi(r[3]);
         }
     }
-    //whoIsPlay=record[1].length>0?record[1][0][2]:whoIsPlay;
 }
 
-//arr=[x,y,qiType.black]
-function addRecord(recordType,re){
+//[x,y,qiType.black,upArr]
+function addRecord(r){
     if(jumpPointer<=record.length-1){
         if(jumpPointer===-1){
             record=[];//数组清空
@@ -100,7 +111,7 @@ function addRecord(recordType,re){
             record=record.slice(0,jumpPointer+1)
         }
     }
-    record.push([recordType,re]);
+    record.push(r);
     jumpPointer=record.length-1;
 
 }
@@ -121,7 +132,6 @@ function play(row, col,player=undefined) {
     let deadArray=[];
     //判断是否有气
     if(haveAir(row,col,qi)===0){
-        console.log("无气")
         let is_eat;
         //是否能吃 对手的棋
         deadArray=eat(row,col,qi)
@@ -147,18 +157,25 @@ function play(row, col,player=undefined) {
             }
         }
     }else{
-        console.log("有气")
         deadArray=eat(row,col,qi,deadArray)
     }
     pan[row][col]=whoIsPlay;
-    addRecord(recordType.down,[[row,col,whoIsPlay]]);
+    addRecord([row,col,whoIsPlay,deadArray]);
+    if(whoIsPlay===qiType.white){
+        whiteUpCount+=deadArray.length;
+    }else{
+        blackUpCount+=deadArray.length;
+    }
+    setAreaQi(deadArray);
+    nextPlay();
+}
+//设置棋数组->空 如果有类型就设置类型
+function setAreaQi(deadArray,type=undefined) {
     if(deadArray.length>0){
-        addRecord(recordType.up,deadArray);
         for(let k=0;k<deadArray.length;k++){
-            pan[deadArray[k][0]][deadArray[k][1]]=qiType.empty;
+            pan[deadArray[k][0]][deadArray[k][1]]=type?type:qiType.empty;
         }
     }
-    nextPlay();
 }
 //吃子函数  qi 势力范围
 function eat(row,col,qi) {
@@ -194,14 +211,11 @@ function jie(row,col,deadArray) {
         let backStep = record[record.length-1];
         //上上一步
         let backBackStep = record[record.length-2];
-        //如果上一步是吃子
-        if(backStep[0]===recordType.up){
-            //如果上上一步是下子
-            if(backBackStep[0]===recordType.down){
-                //死亡的地方正是被下的地方
-                if(backStep[1][0][0]===row&&backStep[1][0][1]===col&&backStep[1][0][2]===whoIsPlay){
-                    exception("劫")
-                }
+        //如果上一步有吃子 并且 吃的是一个
+        if(backStep[3].length===1){
+            //死亡的地方正是被下的地方
+            if(backStep[3][0]===row&&backStep[3][1]===col){
+                exception("劫")
             }
         }
     }
@@ -299,6 +313,14 @@ function onTheBoard(row,col,callback) {
         }
     }
     return true;
+}
+//上一手角色
+function prevPlay() {
+    if(jumpPointer<=0||record.length<=1){
+        whoIsPlay=qiType.black;
+    }else{
+        whoIsPlay=record[jumpPointer-1][2];
+    }
 }
 //下一手角色
 function nextPlay() {

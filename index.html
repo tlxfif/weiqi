@@ -28,19 +28,27 @@
             padding: 0 4px;
             margin: 0 2px;
         }
+        .deleteBlue{
+            -moz-user-select: none; /*mozilar*/
+            -webkit-user-select: none; /*webkit*/
+            -ms-user-select: none; /*IE*/
+            user-select: none;
+        }
 
     </style>
 </head>
-<body>
+<body class="deleteBlue">
 <canvas id="weiqi" width="600" height="600"></canvas>
 <canvas id="path" width="600" height="600"></canvas>
 <br>
-<span class="btn" id="start">&lt;&lt;</span>
-<span class="btn" id="back"> &lt; </span>
-<span class="btn" id="next"> &gt; </span>
-<span class="btn" id="end">&gt;&gt;</span>
-<span class="btn" id="new">显示手数</span>
-<span class="btn" id="auto">自动</span>
+<span class="btn deleteBlue" id="start">&lt;&lt;</span>
+<span class="btn deleteBlue" id="back"> &lt; </span>
+<span class="btn deleteBlue" id="next"> &gt; </span>
+<span class="btn deleteBlue" id="end">&gt;&gt;</span>
+<span class="btn deleteBlue" id="new">显示手数</span>
+<span class="btn deleteBlue" id="auto">自动</span>
+<span class="btn deleteBlue" >黑:<span id="blackUp">0</span></span>
+<span class="btn deleteBlue" >白:<span id="whiteUp">0</span></span>
 </body>
 <script>
     $(function () {

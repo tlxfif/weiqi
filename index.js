@@ -60,62 +60,38 @@ function draw() {
 
 
     // 显示手数
-    let qiCountArr=[];
     if (move_show_flag) {
-        let count=0;
-        for (let m = jumpPointer; m >=0; m--) {
-            if(record[m][0]===recordType.down){
-                count++;
-            }
-        }
-        for (let m =jumpPointer; m >=0; m--) { // 最新的一手由后面的红色标记
+        for (let m =0; m <jumpPointer; m++) { // 最新的一手由后面的红色标记
             let r=record[m];
-            let x=record[m][1][0][0];
-            let y=record[m][1][0][1];
+            let x=record[m][0];
+            let y=record[m][1];
 
-            //提子不记
-            if(r[0]===recordType.up){
-                continue;
-            }
             // 判断是否被提子
             if (pan[x][y] === 0){
-                count--;
                 continue;
             }
-            let flag=arrayAdd(x,y,r[1][0][2],qiCountArr);
-            if(!flag){
-                count--;
-                continue;
-            }
-
-            if (r[1][0][2]===qiType.white) { //black
+            if (r[2]===qiType.white) { //black
                 cxt.fillStyle="black";
             } else {
                 cxt.fillStyle="white";
             }
             cxt.font="bold "+piecesRadius+"px sans-serif";
             cxt.textAlign="center";
-            cxt.fillText(count+"", (x+1)*goMargin, (y+1)*goMargin+(piecesRadius/2)-4);
-            count--;
+            cxt.fillText(m+1+"", (x+1)*goMargin, (y+1)*goMargin+(piecesRadius/2)-4);
         }
     }
     // 特别显示最新的一手
     if (jumpPointer >= 0) {
         cxt.fillStyle = "red";
-        if(record[jumpPointer][0]===recordType.up){
-            cxt.fillRect(
-                (record[jumpPointer-1][1][0][0]+1)*goMargin-5,
-                (record[jumpPointer-1][1][0][1]+1)*goMargin-5,
-                10, 10
-            );
-        }else {
-            cxt.fillRect(
-                (record[jumpPointer][1][0][0] + 1) * goMargin - 5,
-                (record[jumpPointer][1][0][1] + 1) * goMargin - 5,
-                10, 10
-            );
-        }
+        cxt.fillRect(
+            (record[jumpPointer][0]+1)*goMargin-5,
+            (record[jumpPointer][1]+1)*goMargin-5,
+            10, 10
+        );
     }
+    //提子显示
+    $("#blackUp").text(blackUpCount);
+    $("#whiteUp").text(whiteUpCount);
 }
 
 //线条宽度
