@@ -157,7 +157,7 @@ function play(row, col,player=undefined) {
             }
         }
     }else{
-        deadArray=eat(row,col,qi,deadArray)
+        deadArray=eat(row,col,qi)
     }
     pan[row][col]=whoIsPlay;
     addRecord([row,col,whoIsPlay,deadArray]);
@@ -209,8 +209,6 @@ function jie(row,col,deadArray) {
     if(record.length>=2){
         //上一步
         let backStep = record[record.length-1];
-        //上上一步
-        let backBackStep = record[record.length-2];
         //如果上一步有吃子 并且 吃的是一个
         if(backStep[3].length===1){
             //死亡的地方正是被下的地方
