@@ -218,8 +218,8 @@ class core {
       //如果上一步有吃子 并且 吃的是一个
       if(backStep[3].length==1){
         //死亡的地方正是被下的地方
-        if(backStep[3][0]==row&&backStep[3][1]==col){
-          exception("劫");
+        if(backStep[3][0][0]===row&&backStep[3][0][1]===col){
+          exception("劫")
         }
       }
     }
