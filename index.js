@@ -14,18 +14,18 @@ let piecesRadius=goMargin/2;
 //自动下一步
 let autoNext=false;
 
+let img=new Image();
+img.src="bg.jpg";
+
 function draw() {
     var c = document.getElementById("weiqi");
     var cxt = c.getContext("2d");
     cxt.strokeStyle="black";
-
     /* 清空，重新画线等 */
     cxt.clearRect(0,0,goWidth,goHeight);
-    cxt.fillStyle = "#ebc98a";
-    cxt.fillRect(0,0,goWidth,goHeight);
+    cxt.drawImage(img,0,0,goWidth,goHeight);
     grid(cxt);
     ninePoints(cxt);
-
     for (var i = 0; i < goSize; i++) {
         for (var j = 0; j < goSize; j++) {
             if (pan[i][j] === 1) { //black
@@ -57,8 +57,6 @@ function draw() {
             }
         }
     }
-
-
     // 显示手数
     if (move_show_flag) {
         for (let m =0; m <jumpPointer; m++) { // 最新的一手由后面的红色标记
@@ -95,23 +93,28 @@ function draw() {
 }
 
 //线条宽度
-let lineWidth=0.4;
-
+let lineWidth=1;
+let lineColor="#000000";
 //线
 function grid(cxt) {
+    /**
+     * canvas 画线 为2px -0.5 是为了变成1px
+     */
     //竖线
     for (let i = 0; i < goSize; i++) {
         cxt.beginPath();
-        cxt.moveTo(0+goMargin,   (i+1)*goMargin);
-        cxt.lineTo(goWidth-goMargin, (i+1)*goMargin);
+        cxt.strokeStyle=lineColor;
+        cxt.moveTo(0+goMargin,   (i+1)*goMargin-0.5);
+        cxt.lineTo(goWidth-goMargin, (i+1)*goMargin-0.5);
         cxt.lineWidth = lineWidth;
         cxt.stroke();
     }
     //横线
     for (let i = 0; i < goSize; i++) {
         cxt.beginPath();
-        cxt.moveTo((i+1)*goMargin,   0+goMargin);
-        cxt.lineTo((i+1)*goMargin, goHeight-goMargin);
+        cxt.strokeStyle=lineColor;
+        cxt.moveTo((i+1)*goMargin-0.5,   0+goMargin);
+        cxt.lineTo((i+1)*goMargin-0.5, goHeight-goMargin);
         cxt.lineWidth = lineWidth;
         cxt.stroke();
     }
@@ -140,7 +143,7 @@ function ninePoints(cxt) {
     for (var i = 0; i < np.length; i++) {
         cxt.beginPath();
         cxt.arc(np[i][0],np[i][1],3,0,2*Math.PI,false);
-        cxt.fillStyle="#654e32";
+        cxt.fillStyle="#000000";
         cxt.fill();
     }
 }
