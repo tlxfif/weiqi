@@ -7,6 +7,9 @@
     <script src="index.js"></script>
     <script src="sgf.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="ai/convnet-min.js"></script>
+    <script src="ai/net.js"></script>
+    <script src="ai/ai.js"></script>
     <style>
         body {
             margin: 0 auto;
@@ -49,6 +52,7 @@
 <span class="btn deleteBlue" id="auto">自动</span>
 <span class="btn deleteBlue" >黑:<span id="blackUp">0</span></span>
 <span class="btn deleteBlue" >白:<span id="whiteUp">0</span></span>
+<span class="btn deleteBlue" id="ai">神之一手</span>
 </body>
 <script>
     $(function () {
@@ -77,6 +81,9 @@
             }
             move_show_flag=!move_show_flag;
             draw();
+        });
+        $(document).on("click","#ai",function () {
+            convMove();
         });
 
         let autoFlag;
