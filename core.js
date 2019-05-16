@@ -317,7 +317,7 @@ function prevPlay() {
     if(jumpPointer<=0||record.length<=1){
         whoIsPlay=qiType.black;
     }else{
-        whoIsPlay=record[jumpPointer-1][2];
+        whoIsPlay=record[jumpPointer][2];
     }
 }
 //下一手角色
