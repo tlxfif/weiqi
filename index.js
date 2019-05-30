@@ -119,6 +119,20 @@ function grid(cxt) {
         cxt.stroke();
     }
 
+    //A-S
+    for (let i = 0; i < goSize; i++) {
+        cxt.font="15px Arial";
+        cxt.fillText(String.fromCharCode('A'.charCodeAt()+i) ,10 ,(i+1)*goMargin+3);
+        cxt.fillStyle="#000000";
+        cxt.fill();
+    }
+    //1-19
+    for (let i = 0; i < goSize; i++) {
+        cxt.font="15px Arial";
+        cxt.fillText(i+1 ,(i+1)*goMargin-7,18);
+        cxt.fillStyle="#000000";
+        cxt.fill();
+    }
 }
 //天元与边角星
 function ninePoints(cxt) {
@@ -149,6 +163,9 @@ function ninePoints(cxt) {
 }
 
 function mousedownHandler(e) {
+    if(e.which!==1){
+        return false;
+    }
     var x, y;
     if (e.offsetX || e.offsetX == 0) {
         x = e.offsetX; //- imageView.offsetLeft;
