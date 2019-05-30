@@ -2,7 +2,8 @@
 let qiType={
     empty:0,
     black:1,
-    white:2
+    white:-1,
+    fill:7,
 };
 let boardSize=19;
 //棋盘大小

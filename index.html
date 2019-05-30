@@ -53,6 +53,7 @@
 <span class="btn deleteBlue" >黑:<span id="blackUp">0</span></span>
 <span class="btn deleteBlue" >白:<span id="whiteUp">0</span></span>
 <span class="btn deleteBlue" id="ai">神之一手</span>
+<span class="btn deleteBlue" id="lock">锁定</span>
 </body>
 <script>
     $(function () {
@@ -120,8 +121,34 @@
             draw();
             return false;
         });
-
-
+        let click=0;
+        $(document).on("click","#lock",function () {
+            console.log(click)
+            switch (click) {
+                case 0:
+                    $(this).text("锁定黑色")
+                    lockQiRole=qiType.black;
+                    click++;
+                    break;
+                case 1:
+                    $(this).text("锁定白色")
+                    lockQiRole=qiType.white;
+                    click++;
+                    break;
+                case 2:
+                    $(this).text("白黑")
+                    whoIsPlay=qiType.white
+                    lockQiRole=undefined;
+                    click++;
+                    break;
+                case 3:
+                    $(this).text("黑白")
+                    whoIsPlay=qiType.black
+                    lockQiRole=undefined;
+                    click=0;
+                    break;
+            }
+        });
     })
     function importSGF(sgf) {
         let record=parser(sgf);

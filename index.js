@@ -11,6 +11,8 @@ let goMargin=goWidth/(goSize+1);
 //棋子半径
 let piecesRadius=goMargin/2;
 
+let lockQiRole=undefined;
+
 //自动下一步
 let autoNext=false;
 
@@ -28,7 +30,7 @@ function draw() {
     ninePoints(cxt);
     for (var i = 0; i < goSize; i++) {
         for (var j = 0; j < goSize; j++) {
-            if (pan[i][j] === 1) { //black
+            if (pan[i][j] === qiType.black) { //black
                 var rg = cxt.createRadialGradient((i+1)*goMargin-3, (j+1)*goMargin-3, 1, (i+1)*goMargin-4, (j+1)*goMargin-4, 11);
                 rg.addColorStop(1, /*"black"*/"#202020");
                 rg.addColorStop(0, "gray");
@@ -39,7 +41,7 @@ function draw() {
                 cxt.fill();
 
             }
-            else if (pan[i][j] === 2) { //white
+            else if (pan[i][j] === qiType.white) { //white
                 var rg = cxt.createRadialGradient((i+1)*goMargin-3, (j+1)*goMargin-3, 1, (i+1)*goMargin-4, (j+1)*goMargin-4, 11);
                 rg.addColorStop(1, /*"lightgray"*/"#e0e0e0");
                 rg.addColorStop(0, "white");
@@ -49,7 +51,7 @@ function draw() {
                 cxt.fillStyle=rg;
                 cxt.fill();
             }
-            else if (pan[i][j] === 7) { // fill color
+            else if (pan[i][j] === qiType.fill) { // fill color
                 cxt.beginPath();
                 cxt.arc((i+1)*goMargin, (j+1)*goMargin,piecesRadius,0,2*Math.PI,false);
                 cxt.fillStyle="red";
@@ -122,16 +124,14 @@ function grid(cxt) {
     //A-S
     for (let i = 0; i < goSize; i++) {
         cxt.font="15px Arial";
-        cxt.fillText(String.fromCharCode('A'.charCodeAt()+i) ,10 ,(i+1)*goMargin+3);
         cxt.fillStyle="#000000";
-        cxt.fill();
+        cxt.fillText(String.fromCharCode('A'.charCodeAt()+i) ,10 ,(i+1)*goMargin+3);
     }
     //1-19
     for (let i = 0; i < goSize; i++) {
         cxt.font="15px Arial";
-        cxt.fillText(i+1 ,(i+1)*goMargin-7,18);
         cxt.fillStyle="#000000";
-        cxt.fill();
+        cxt.fillText(i+1 ,(i+1)*goMargin-7,18);
     }
 }
 //天元与边角星
@@ -194,8 +194,7 @@ function mousedownHandler(e) {
     }
     if (!xok || !yok)
         return;
-
-    play(x_, y_);
+    play(x_, y_,lockQiRole);
     draw();
 }
 
