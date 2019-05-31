@@ -11,7 +11,11 @@ let goMargin=goWidth/(goSize+1);
 //棋子半径
 let piecesRadius=goMargin/2;
 
+//锁定角色
 let lockQiRole=undefined;
+
+//题目对象
+let Question={};
 
 //自动下一步
 let autoNext=false;
@@ -20,6 +24,11 @@ let img=new Image();
 img.src="bg.jpg";
 
 function draw() {
+
+    goSize=boardSize;
+    goMargin=goWidth/(goSize+1);
+    piecesRadius=goMargin/2;
+
     var c = document.getElementById("weiqi");
     var cxt = c.getContext("2d");
     cxt.strokeStyle="black";
@@ -49,12 +58,6 @@ function draw() {
                 cxt.arc((i+1)*goMargin, (j+1)*goMargin,piecesRadius,0,2*Math.PI,false);
                 //cxt.fillStyle="white";
                 cxt.fillStyle=rg;
-                cxt.fill();
-            }
-            else if (pan[i][j] === qiType.fill) { // fill color
-                cxt.beginPath();
-                cxt.arc((i+1)*goMargin, (j+1)*goMargin,piecesRadius,0,2*Math.PI,false);
-                cxt.fillStyle="red";
                 cxt.fill();
             }
         }
@@ -232,6 +235,16 @@ function mousemoveHandler(e) {
 
     cxt.beginPath();
     cxt.arc(x,y,piecesRadius,0,2*Math.PI,false);
+    if(lockQiRole){
+        if(lockQiRole===qiType.black){
+            cxt.fillStyle="rgba(2,2,3,0.3)";
+        }
+        else{
+            cxt.fillStyle="rgba(255,255,255,0.5)";
+        }
+        cxt.fill();
+        return;
+    }
     if (whoIsPlay===qiType.black)
         cxt.fillStyle="rgba(2,2,3,0.3)";
     else

@@ -356,3 +356,12 @@ function BoardGenerator(size=19) {
 function exception(msg) {
     throw new SyntaxError(msg)
 }
+
+function weiqi_init(size) {
+    boardSize=size
+    pan=BoardGenerator(boardSize);
+    record=[];
+    jumpPointer=-1;
+    blackUpCount=0;
+    whiteUpCount=0;
+}

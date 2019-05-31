@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>简易围棋</title>
+    <title>出题工具</title>
     <script src="core.js"></script>
     <script src="index.js"></script>
-    <script src="sgf.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.8.2/index.js"></script>
+    <!--<script src="sgf.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="ai/convnet-min.js"></script>
-    <script src="ai/net.js"></script>
-    <script src="ai/ai.js"></script>
+    <!--<script src="ai/convnet-min.js"></script>-->
+    <!--<script src="ai/net.js"></script>-->
+    <!--<script src="ai/ai.js"></script>-->
     <style>
         body {
             margin: 0 auto;
-            width:600px;
+            width:1200px;
         }
         #weiqi {
             border: 0px solid blue;
@@ -37,7 +38,34 @@
             -ms-user-select: none; /*IE*/
             user-select: none;
         }
-
+        #toolsPanel{
+            margin-left: 610px;
+            margin-top: 10px;
+        }
+        .answer{
+            background-color: #5ebfc0;
+            color: white;
+            padding: 0 4px;
+            margin: 0 2px;
+        }
+        .candidates{
+            background-color: #b8b8c0;
+            color: white;
+            padding: 0 4px;
+            margin: 0 2px;
+        }
+        .candidatesIsAnswer{
+            background-color: #71c05f;
+            color: white;
+            padding: 0 4px;
+            margin: 0 2px;
+        }
+        .delete{
+            background-color: #c03836;
+            color: white;
+            padding: 0 4px;
+            margin: 0 2px;
+        }
     </style>
 </head>
 <body class="deleteBlue">
@@ -52,12 +80,54 @@
 <span class="btn deleteBlue" id="auto">自动</span>
 <span class="btn deleteBlue" >黑:<span id="blackUp">0</span></span>
 <span class="btn deleteBlue" >白:<span id="whiteUp">0</span></span>
-<span class="btn deleteBlue" id="ai">神之一手</span>
+<!--<span class="btn deleteBlue" id="ai">神之一手</span>-->
 <span class="btn deleteBlue" id="lock">锁定</span>
+
+<div id="toolsPanel">
+    <span class="btn deleteBlue" id="create">新的</span><br><br>
+    题目类型：<select class="deleteBlue" id="questionsType">
+        <option value="1">下棋题</option>
+        <option value="2">盘外选择题</option>
+        <option value="3">盘内选择题</option>
+        <option value="4">数气题</option>
+    </select><br><br>
+    路&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数：<select class="deleteBlue" id="panSize">
+    <option value="19">19路</option>
+    <option value="13">13路</option>
+    <option value="9">9路</option>
+    </select><br><br>
+    提&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;示：<textarea id="intro" rows="3" cols="50"></textarea><br><br>
+    <span class="btn deleteBlue" id="saveToQuestion">保存至题干</span><span class="btn deleteBlue" id="showQuestion">显示题干</span><br><br>
+
+    <div class="outQuestion" style="display: none">
+        <span class="btn deleteBlue">候选项(盘外选择题)</span><br><br>
+        <input id="candidatesText" placeholder="请输入候选项"><span class="btn deleteBlue" id="addCandidates">添加</span><br>
+        <div id="candidatesList">
+        </div><br><br>
+    </div>
+
+
+    <span class="btn deleteBlue" id="setAnswer">设置答案</span><br><br>
+
+    <div id="answerList">
+    </div><br><br>
+    <span class="btn deleteBlue" id="submit">出题</span><br><br>
+</div>
 </body>
 <script>
+
+    let QuestionsType={
+        xia:1,
+        out:2,
+        inner:3,
+        qi:4
+    }
+    //初始为下棋题
+    Question.type=QuestionsType.xia;
+    Question.count=19;
+    Question.first=qiType.black;
     $(function () {
-        draw();
+        // draw();
         $(document).on("click","#back",function () {
             backStep();
             draw();
@@ -149,13 +219,227 @@
                     break;
             }
         });
-    })
-    function importSGF(sgf) {
-        let record=parser(sgf);
-        for (let i=0;i<record.length;i++){
-            play(record[i][0],record[i][1],record[i][2])
+
+        $(document).on("click","#saveToQuestion",function (){
+            Question.start=[];
+            Question.answer=[];
+            for(let i=0;i<=jumpPointer;i++){
+                Question.start.push([record[i][0],record[i][1],record[i][2]]);
+            }
+            if(jumpPointer>=1){
+                Question.first=Question.start[jumpPointer][2]===qiType.black?qiType.white:qiType.black;
+            }else{
+                Question.first=qiType.black;
+            }
+            showAnswer()
+        })
+        $(document).on("click","#showQuestion",function (){
+            jumpPointer=-1;
+            record=[];
+            pan=BoardGenerator(boardSize);
+            if(Question.start){
+                for(let i=0;i<Question.start.length;i++){
+                    console.log(Question.start[i])
+                    play(Question.start[i][0],Question.start[i][1],Question.start[i][2])
+                }
+            }
+            draw();
+        })
+        $(document).on("click","#setAnswer",function (){
+            if(!Question.answer){
+                Question.answer=[];
+            }
+            if(!Question.start){
+                Question.start=[];
+            }
+
+            let answer=[];
+            for(let i=Question.start.length;i<record.length;i++){
+                answer.push([record[i][0],record[i][1]])
+            }
+            Question.answer.push(answer);
+            showAnswer();
+            draw();
+        })
+        $(document).on("change","#panSize",function (){
+            Question.count=parseInt($(this).val());
+            weiqi_init(Question.count)
+            draw();
+        })
+
+
+
+        $(document).on("change","#questionsType",function (){
+            let i=parseInt($(this).val());
+            Question.type=i;
+            if(Question.type===QuestionsType.out){
+                $(".outQuestion").show();
+            }else{
+                $(".outQuestion").hide();
+            }
+        })
+        //添加候选项
+        $(document).on("click","#addCandidates",function (){
+            let val=$("#candidatesText").val().trim()
+            if(val!==""){
+                if(!Question.candidates){
+                    Question.candidates=[];
+                }
+                Question.candidates.push(val);
+                console.log(val)
+                showCandidates();
+                $("#candidatesText").val("")
+            }
+        })
+        //添加候选项
+        $(document).on("blur","#intro",function (){
+            Question.intro=$(this).val()
+            console.log(Question)
+        })
+        //新的
+        $(document).on("click","#create",function (){
+            window.location.reload();
+        })
+
+        //删除候选项
+        $(document).on("click",".deleteCandidates",function (){
+            let index= $(this).data("index")
+            let answer=[];
+            if(Question.answer){
+                if(Question.answer[0]){
+                    if(Question.answer[0][0]){
+                        answer=Question.answer[0][0];
+                    }
+                }
+            }
+            let deleteFlag=-1
+            for(let i=0;i<answer.length;i++){
+                console.log(" ===> ",index,answer[i])
+                if(index<answer[i]){
+                    console.log(answer[i]," ===> ",answer[i]-1)
+                    answer[i]=answer[i]-1;
+                    //Question.answer[0][0][i]=answer[i];
+                }else if(index===answer[i]){
+                    deleteFlag=i;
+                    console.log("delete ",i)
+                }
+            }
+
+
+            Question.candidates.splice(index,1)
+            if(deleteFlag!=-1){
+                answer.splice(deleteFlag,1)
+            }
+            if(answer.length===0){
+                Question.answer.splice(0,1)
+            }
+            showAnswer();
+            showCandidates();
+        })
+        //删除答案
+        $(document).on("click",".deleteAnswer",function (){
+            let index= $(this).data("index")
+            Question.answer.splice(index,1)
+            showCandidates();
+            showAnswer();
+        })
+        //提交
+        $(document).on("click","#submit",function (){
+
+            if(Question.count!==9&&Question.count!==13&&Question.count!==19) {
+                alert("棋盘有问题: "+Question.count);
+                return false;
+            }
+            if(!Question.answer||Question.answer.length===0){
+                alert("没有设置答案: "+JSON.stringify(Question.answer));
+                return false;
+            }
+            if(!Question.first){
+                alert("先手棋子未设置: "+Question.first);
+                return false;
+            }
+            if(!Question.intro||Question.intro.trim()===""){
+                alert("没有设置提示: "+Question.intro);
+                return false;
+            }
+            if(Question.type===QuestionsType.out){
+                if(!Question.candidates||Question.candidates.length===0){
+                    alert("没有设置候选项: "+Question.candidates);
+                    return false;
+                }
+            }
+            alert("出题成功");
+            console.log(JSON.stringify(Question))
+        })
+        //设置候选项为答案
+        $(document).on("click",".candidatesSetToAnswer",function (){
+            if(!Question.answer){
+                Question.answer=[];
+            }
+            if(!Question.answer[0]){
+                Question.answer[0]=[];
+            }
+            if(!Question.answer[0][0]){
+                Question.answer[0][0]=[];
+            }
+            let answer=Question.answer[0][0];
+            let index= $(this).data("index")
+            let flag=-1;
+            for(let i=0;i<answer.length;i++){
+                if(index===answer[i]){
+                    flag=i;
+                }
+            }
+            if(flag!==-1){
+                Question.answer[0][0].splice(flag,1)
+                $(this).removeClass('candidatesIsAnswer')
+                $(this).addClass('candidates')
+            }else{
+                Question.answer[0][0].push(index);
+                $(this).removeClass('candidates')
+                $(this).addClass('candidatesIsAnswer')
+            }
+            if(Question.answer[0][0].length===0){
+                Question.answer.splice(0,1)
+            }
+            showAnswer()
+        })
+
+
+        function showCandidates() {
+            $("#candidatesList").html("");
+            let html="";
+            let answer=[];
+            if(Question.answer){
+                if(Question.answer[0]){
+                    if(Question.answer[0][0]){
+                        answer=Question.answer[0][0];
+                    }
+                }
+            }
+            for(let i=0;i<Question.candidates.length;i++){
+                let flag=$.inArray(i, answer);
+                if(flag===-1){
+                    html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidates deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
+                }else{
+                    html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidatesIsAnswer deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
+                }
+            }
+            $("#candidatesList").html(html);
         }
-        draw();
-    }
+
+        function showAnswer() {
+            $("#answerList").html("");
+            let html="";
+            let length=0;
+            if(Question.answer){
+                length=Question.answer.length;
+            }
+            for(let i=0;i<length;i++){
+                html+=`<span class=" answer deleteBlue ">答案`+(i+1)+`</span> <span data-index=`+i+` class=" deleteAnswer delete deleteBlue">删除</span><br><br>`;
+            }
+            $("#answerList").html(html);
+        }
+    })
 </script>
 </html>
