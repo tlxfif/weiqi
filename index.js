@@ -166,11 +166,11 @@ function ninePoints(cxt) {
 }
 
 function mousedownHandler(e) {
-    if(e.which!==1){
+    if(e.which!==1&&e.which!==3){
         return false;
     }
     var x, y;
-    if (e.offsetX || e.offsetX == 0) {
+    if (e.offsetX || e.offsetX === 0) {
         x = e.offsetX; //- imageView.offsetLeft;
         y = e.offsetY; //- imageView.offsetTop;
     }
@@ -197,13 +197,23 @@ function mousedownHandler(e) {
     }
     if (!xok || !yok)
         return;
-    play(x_, y_,lockQiRole);
+    if(lockQiRole){
+        if(e.which===1){
+            play(x_, y_,qiType.black);
+        }else{
+            play(x_, y_,qiType.white);
+        }
+    }else {
+        if(e.which===1){
+            play(x_, y_);
+        }
+    }
     draw();
 }
 
 function mousemoveHandler(e) {
     var x, y;
-    if (e.offsetX || e.offsetX == 0) {
+    if (e.offsetX || e.offsetX === 0) {
         x = e.offsetX ;//- imageView.offsetLeft;
         y = e.offsetY ;//- imageView.offsetTop;
     }

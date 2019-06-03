@@ -84,7 +84,7 @@
 <span class="btn deleteBlue" id="lock">锁定</span>
 
 <div id="toolsPanel">
-    <span class="btn deleteBlue" id="create">新的</span><br><br>
+    <span class="btn deleteBlue" id="create">新建</span><br><br>
     题目类型：<select class="deleteBlue" id="questionsType">
         <option value="1">下棋题</option>
         <option value="2">盘外选择题</option>
@@ -97,7 +97,7 @@
     <option value="9">9路</option>
     </select><br><br>
     提&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;示：<textarea id="intro" rows="3" cols="50"></textarea><br><br>
-    <span class="btn deleteBlue" id="saveToQuestion">保存至题干</span><span class="btn deleteBlue" id="showQuestion">显示题干</span><br><br>
+    <span class="btn deleteBlue" id="saveToQuestion">保存至题型</span><span class="btn deleteBlue" id="showQuestion">显示题型</span><br><br>
 
     <div class="outQuestion" style="display: none">
         <span class="btn deleteBlue">候选项(盘外选择题)</span><br><br>
@@ -187,36 +187,20 @@
         })
 
         $("body").bind("contextmenu", function () {
-            backStep();
-            draw();
+            if(!lockQiRole){
+                backStep();
+                draw();
+            }
             return false;
         });
-        let click=0;
         $(document).on("click","#lock",function () {
-            console.log(click)
-            switch (click) {
-                case 0:
-                    $(this).text("锁定黑色")
-                    lockQiRole=qiType.black;
-                    click++;
-                    break;
-                case 1:
-                    $(this).text("锁定白色")
-                    lockQiRole=qiType.white;
-                    click++;
-                    break;
-                case 2:
-                    $(this).text("白黑")
-                    whoIsPlay=qiType.white
-                    lockQiRole=undefined;
-                    click++;
-                    break;
-                case 3:
-                    $(this).text("黑白")
-                    whoIsPlay=qiType.black
-                    lockQiRole=undefined;
-                    click=0;
-                    break;
+
+            if(!lockQiRole){
+                $(this).text("锁定中")
+                lockQiRole=true;
+            }else{
+                lockQiRole=undefined;
+                $(this).text("未锁定")
             }
         });
 
@@ -239,7 +223,6 @@
             pan=BoardGenerator(boardSize);
             if(Question.start){
                 for(let i=0;i<Question.start.length;i++){
-                    console.log(Question.start[i])
                     play(Question.start[i][0],Question.start[i][1],Question.start[i][2])
                 }
             }
@@ -256,6 +239,9 @@
             let answer=[];
             for(let i=Question.start.length;i<record.length;i++){
                 answer.push([record[i][0],record[i][1]])
+            }
+            if(answer.length===0){
+                return false;
             }
             Question.answer.push(answer);
             showAnswer();
@@ -327,7 +313,7 @@
 
 
             Question.candidates.splice(index,1)
-            if(deleteFlag!=-1){
+            if(deleteFlag!==-1){
                 answer.splice(deleteFlag,1)
             }
             if(answer.length===0){
@@ -342,6 +328,24 @@
             Question.answer.splice(index,1)
             showCandidates();
             showAnswer();
+        })
+        //显示答案
+        $(document).on("click",".answer",function (){
+            let index= $(this).data("index")
+            let answer=Question.answer[index];
+            jumpPointer=-1;
+            record=[];
+            whoIsPlay=qiType.black;
+            pan=BoardGenerator(boardSize);
+            if(Question.start){
+                for(let i=0;i<Question.start.length;i++){
+                    play(Question.start[i][0],Question.start[i][1],Question.start[i][2])
+                }
+            }
+            for(let i=0;i<answer.length;i++){
+                play(answer[i][0],answer[i][1])
+            }
+            draw();
         })
         //提交
         $(document).on("click","#submit",function (){
@@ -417,12 +421,14 @@
                     }
                 }
             }
-            for(let i=0;i<Question.candidates.length;i++){
-                let flag=$.inArray(i, answer);
-                if(flag===-1){
-                    html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidates deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
-                }else{
-                    html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidatesIsAnswer deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
+            if(Question.candidates){
+                for(let i=0;i<Question.candidates.length;i++){
+                    let flag=$.inArray(i, answer);
+                    if(flag===-1){
+                        html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidates deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
+                    }else{
+                        html+=`<span data-index=`+i+` class=" candidatesSetToAnswer candidatesIsAnswer deleteBlue">`+Question.candidates[i]+`</span> <span data-index=`+i+` class=" deleteCandidates delete deleteBlue">删除</span><br><br>`;
+                    }
                 }
             }
             $("#candidatesList").html(html);
@@ -436,7 +442,7 @@
                 length=Question.answer.length;
             }
             for(let i=0;i<length;i++){
-                html+=`<span class=" answer deleteBlue ">答案`+(i+1)+`</span> <span data-index=`+i+` class=" deleteAnswer delete deleteBlue">删除</span><br><br>`;
+                html+=`<span data-index=`+i+` class=" answer deleteBlue ">答案`+(i+1)+`</span> <span data-index=`+i+` class=" deleteAnswer delete deleteBlue">删除</span><br><br>`;
             }
             $("#answerList").html(html);
         }
