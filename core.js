@@ -4,6 +4,10 @@ let qiType={
     black:1,
     white:-1,
     fill:7,
+    choose:8,
+    air:9,
+    blackTriangle:100,
+    whiteTriangle:-100,
 };
 let boardSize=19;
 //棋盘大小
@@ -119,7 +123,7 @@ function addRecord(r){
 //下一手 颜色 黑先
 let whoIsPlay=qiType.black;
 function play(row, col,player=undefined) {
-    if(player&&(player===qiType.black||player===qiType.white)){
+    if(player){
         whoIsPlay=player;
     }
     onTheBoard(row,col,function () {
@@ -131,40 +135,42 @@ function play(row, col,player=undefined) {
     }
     let qi=[];
     let deadArray=[];
-    //判断是否有气
-    if(haveAir(row,col,qi)===0){
-        let is_eat;
-        //是否能吃 对手的棋
-        deadArray=eat(row,col,qi)
-        if(deadArray.length>0){
-            is_eat=true;
-        }
-        jie(row,col,deadArray)
-        //无气并且没有吃对方
-        if(!is_eat){
-            let count=0;
-            let sumQi=0;
-            for(let g=0;g<qi.length;g++){
-                //气点与势力范围
-                let round=[],point=[];
-                if(pan[qi[g][0]][qi[g][1]]!==whoIsPlay){
-                    continue;
+    if(whoIsPlay===qiType.black||whoIsPlay===qiType.white){
+        //判断是否有气
+        if(haveAir(row,col,qi)===0){
+            let is_eat;
+            //是否能吃 对手的棋
+            deadArray=eat(row,col,qi)
+            if(deadArray.length>0){
+                is_eat=true;
+            }
+            jie(row,col,deadArray)
+            //无气并且没有吃对方
+            if(!is_eat){
+                let count=0;
+                let sumQi=0;
+                for(let g=0;g<qi.length;g++){
+                    //气点与势力范围
+                    let round=[],point=[];
+                    if(pan[qi[g][0]][qi[g][1]]!==whoIsPlay){
+                        continue;
+                    }
+                    count++;
+                    sumQi+=getQi(qi[g][0],qi[g][1],round,point)
                 }
-                count++;
-                sumQi+=getQi(qi[g][0],qi[g][1],round,point)
+                if(count>=sumQi){
+                    exception("禁入点,没有气不能下")
+                }
             }
-            if(count>=sumQi){
-                exception("禁入点,没有气不能下")
-            }
+        }else{
+            deadArray=eat(row,col,qi)
         }
-    }else{
-        deadArray=eat(row,col,qi)
     }
     pan[row][col]=whoIsPlay;
     addRecord([row,col,whoIsPlay,deadArray]);
     if(whoIsPlay===qiType.white){
         whiteUpCount+=deadArray.length;
-    }else{
+    }else if (whoIsPlay===qiType.black) {
         blackUpCount+=deadArray.length;
     }
     setAreaQi(deadArray);

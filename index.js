@@ -20,6 +20,9 @@ let Question={};
 //自动下一步
 let autoNext=false;
 
+//答案显示的标记
+let answerStart=-1;
+
 let img=new Image();
 img.src="bg.jpg";
 
@@ -59,12 +62,31 @@ function draw() {
                 //cxt.fillStyle="white";
                 cxt.fillStyle=rg;
                 cxt.fill();
+            }else if (pan[i][j] === qiType.air) { //white
+                var rg = cxt.createRadialGradient((i+1)*goMargin-3, (j+1)*goMargin-3, 1, (i+1)*goMargin-4, (j+1)*goMargin-4, 11);
+                rg.addColorStop(1,"#ccffb7");
+                rg.addColorStop(0,"#b6ff9d");
+                cxt.beginPath();
+                cxt.arc((i+1)*goMargin, (j+1)*goMargin,piecesRadius,0,2*Math.PI,false);
+                //cxt.fillStyle="white";
+                cxt.fillStyle=rg;
+                cxt.fill();
+            }else if (pan[i][j] === qiType.choose) { //white
+                var rg = cxt.createRadialGradient((i+1)*goMargin-3, (j+1)*goMargin-3, 1, (i+1)*goMargin-4, (j+1)*goMargin-4, 11);
+                rg.addColorStop(1,"#ff898b");
+                rg.addColorStop(0,"#fcffea");
+                cxt.beginPath();
+                cxt.arc((i+1)*goMargin, (j+1)*goMargin,piecesRadius,0,2*Math.PI,false);
+                //cxt.fillStyle="white";
+                cxt.fillStyle=rg;
+                cxt.fill();
             }
         }
     }
     // 显示手数
-    if (move_show_flag) {
-        for (let m =0; m <jumpPointer; m++) { // 最新的一手由后面的红色标记
+    //if (move_show_flag) {
+    if (Question.type===QuestionsType.xia&&answerStart>=0) {
+        for (let m =answerStart; m <jumpPointer; m++) { // 最新的一手由后面的红色标记
             let r=record[m];
             let x=record[m][0];
             let y=record[m][1];
@@ -80,7 +102,7 @@ function draw() {
             }
             cxt.font="bold "+piecesRadius+"px sans-serif";
             cxt.textAlign="center";
-            cxt.fillText(m+1+"", (x+1)*goMargin, (y+1)*goMargin+(piecesRadius/2)-4);
+            cxt.fillText((m+1-answerStart)+"", (x+1)*goMargin, (y+1)*goMargin+(piecesRadius/2)-4);
         }
     }
     // 特别显示最新的一手
@@ -197,17 +219,40 @@ function mousedownHandler(e) {
     }
     if (!xok || !yok)
         return;
-    if(lockQiRole){
-        if(e.which===1){
-            play(x_, y_,qiType.black);
+
+    if(Question.type===QuestionsType.xia||Question.type===QuestionsType.out){
+        toPlay()
+    }else if(Question.type===QuestionsType.inner){
+        if(answerStart===-1){
+            toPlay()
         }else{
-            play(x_, y_,qiType.white);
+            if(e.which===1){
+                play(x_, y_,qiType.choose);
+            }
         }
-    }else {
-        if(e.which===1){
-            play(x_, y_);
+    }else if(Question.type===QuestionsType.qi){
+        if(answerStart===-1){
+            toPlay()
+        }else{
+            if(e.which===1){
+                play(x_, y_,qiType.air);
+            }
         }
     }
+    function toPlay() {
+        if(lockQiRole){
+            if(e.which===1){
+                play(x_, y_,qiType.black);
+            }else{
+                play(x_, y_,qiType.white);
+            }
+        }else {
+            if(e.which===1){
+                play(x_, y_);
+            }
+        }
+    }
+
     draw();
 }
 

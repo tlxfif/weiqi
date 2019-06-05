@@ -6,7 +6,7 @@
     <script src="core.js"></script>
     <script src="index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.8.2/index.js"></script>
-    <!--<script src="sgf.js"></script>-->
+    <script src="file.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <!--<script src="ai/convnet-min.js"></script>-->
     <!--<script src="ai/net.js"></script>-->
@@ -76,7 +76,7 @@
 <span class="btn deleteBlue" id="back"> &lt; </span>
 <span class="btn deleteBlue" id="next"> &gt; </span>
 <span class="btn deleteBlue" id="end">&gt;&gt;</span>
-<span class="btn deleteBlue" id="new">显示手数</span>
+<!--<span class="btn deleteBlue" id="new">显示手数</span>-->
 <span class="btn deleteBlue" id="auto">自动</span>
 <span class="btn deleteBlue" >黑:<span id="blackUp">0</span></span>
 <span class="btn deleteBlue" >白:<span id="whiteUp">0</span></span>
@@ -215,6 +215,8 @@
             }else{
                 Question.first=qiType.black;
             }
+            //设置显示答案的标记
+            answerStart=Question.start.length;
             showAnswer()
         })
         $(document).on("click","#showQuestion",function (){
@@ -226,6 +228,8 @@
                     play(Question.start[i][0],Question.start[i][1],Question.start[i][2])
                 }
             }
+            //设置显示答案的标记
+            answerStart=Question.start.length;
             draw();
         })
         $(document).on("click","#setAnswer",function (){
@@ -263,6 +267,11 @@
             }else{
                 $(".outQuestion").hide();
             }
+            Question.candidates=[];
+            Question.answer=[];
+            showCandidates();
+            showAnswer();
+            draw();
         })
         //添加候选项
         $(document).on("click","#addCandidates",function (){
@@ -272,7 +281,6 @@
                     Question.candidates=[];
                 }
                 Question.candidates.push(val);
-                console.log(val)
                 showCandidates();
                 $("#candidatesText").val("")
             }
@@ -342,8 +350,16 @@
                     play(Question.start[i][0],Question.start[i][1],Question.start[i][2])
                 }
             }
+            //设置显示答案的标记
+            answerStart=Question.start.length;
+            let type=undefined;
+            if(Question.type===QuestionsType.qi){
+                type=qiType.air;
+            }else if(Question.type===QuestionsType.inner){
+                type=qiType.choose;
+            }
             for(let i=0;i<answer.length;i++){
-                play(answer[i][0],answer[i][1])
+                play(answer[i][0],answer[i][1],type)
             }
             draw();
         })
@@ -373,6 +389,7 @@
                 }
             }
             alert("出题成功");
+            exportRaw(Question.intro+".txt",JSON.stringify(Question))
             console.log(JSON.stringify(Question))
         })
         //设置候选项为答案
