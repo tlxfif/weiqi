@@ -51,7 +51,8 @@ function valid(sgf) {
     }
     //FIXME 没有检测 sgf头信息
     //检测每一步棋
-    for(let i=2;i<arr.length;i++){
+    console.log(arr)
+    for(let i=1;i<arr.length;i++){
         let item=arr[i];
         //最后一手检测括号
         if(i===arr.length-1){
@@ -75,7 +76,7 @@ function parser(sgf) {
     let val=valid(init);
     let record=[];
 
-    for(let i=2;i<val.length;i++){
+    for(let i=1;i<val.length;i++){
         let item=val[i].toLowerCase();
         //最后一手检测括号
         if(i===val.length-1){
